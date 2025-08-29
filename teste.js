@@ -301,28 +301,6 @@ function montarPathCategories(dataUser, nomeUser) {
 }
 
 async function getTarefasAFazer(dataUser, nomeUser, authToken) {
-    fetch("https://edusp-api.ip.tv/tms/task/todo?expired_only=false&limit=100&offset=0&filter_expired=true&is_exam=false&with_answer=true&is_essay=false&publication_target=r069cd8fd50ca7de66-l&publication_target=ra0433e4ccfe70e277-l&publication_target=r069cd8fd50ca7de66-l:rafaelabite121044797-sp&publication_target=ra0433e4ccfe70e277-l:rafaelabite121044797-sp&publication_target=1698&publication_target=1205&publication_target=1560&publication_target=1173&publication_target=764&answer_statuses=draft&answer_statuses=pending&with_apply_moment=true", {
-        "headers": {
-            "accept": "application/json",
-            "accept-language": "en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7",
-            "content-type": "application/json",
-            "priority": "u=1, i",
-            "request-id": "|a7b3d7648acd4f6c9b82bfa37b2ca360.b8384a44697444a2",
-            "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": "\"Windows\"",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "cross-site",
-            "traceparent": "00-a7b3d7648acd4f6c9b82bfa37b2ca360-b8384a44697444a2-01",
-            "x-api-key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjQwMmZhYTZmMTFkMTYwZDFlNWRiYzBmIiwic3VwZXJ2aXNlZXMiOltdLCJleHRlcm5hbF9pZCI6IjI5NTc1Njk1NiIsInNrZXkiOiJhdXRoX3Rva2VuOmVkdXNwOnJhZmFlbGFiaXRlMTIxMDQ0Nzk3LXNwIiwibmljayI6InJhZmFlbGFiaXRlMTIxMDQ0Nzk3LXNwIiwicmVhbG0iOiJlZHVzcCIsInJvbGUiOiIwMDA2IiwiaWF0IjoxNzU1NDUzNjgwLCJhdWQiOiJ3ZWJjbGllbnQifQ.sfXIt6SxBuJXn1bUpXKeAoqCJQ0zID0hmWAbtaHD-7I",
-            "x-api-platform": "webclient",
-            "x-api-realm": "edusp",
-            "Referer": "https://saladofuturo.educacao.sp.gov.br/"
-        },
-        "body": null,
-        "method": "GET"
-    });
 
     // https://edusp-api.ip.tv = urlDefault
     // /tms/task/todo = endpoint
@@ -333,7 +311,7 @@ async function getTarefasAFazer(dataUser, nomeUser, authToken) {
     // &is_exam=false
     // &with_answer=true
     // &is_essay=
-    
+
 
     // &publication_target=r069cd8fd50ca7de66-l
     // &publication_target=ra0433e4ccfe70e277-l
@@ -356,10 +334,115 @@ async function getTarefasAFazer(dataUser, nomeUser, authToken) {
 
     const url = urlDeafult + '/tms/task/todo' + '?expired_only=false&limit=100&offset=0&filter_expired=true&is_exam=false&with_answer=true&is_essay=false&' + queryParameters;
     console.log('Url montada >', url);
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            "accept": "application/json",
+            "accept-language": "en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7",
+            "content-type": "application/json",
+            "priority": "u=1, i",
+            // "request-id": "|a7b3d7648acd4f6c9b82bfa37b2ca360.b8384a44697444a2",
+            "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            // "traceparent": "00-a7b3d7648acd4f6c9b82bfa37b2ca360-b8384a44697444a2-01",
+            "x-api-key": authToken,
+            "x-api-platform": "webclient",
+            "x-api-realm": "edusp",
+            "Referer": "https://saladofuturo.educacao.sp.gov.br/"
+        }
+    });
+
+    const data = await response.json();
+    console.log('Tarefas (JSON) >', data);
+    console.log(`Usuário possui ${data.length} tarefas pendentes.`);
+
+    data.forEach(tarefa => {
+        console.log('Título da tarefa:', tarefa.title);
+    });
+
+    for (const tarefa of data) {
+        const feito = await fazerTarefa(tarefa, authToken);
+        if (feito) {
+            console.log('Feito!');
+        } else {
+            console.log('Não foi feito... Parece que ocorreu algum erro');
+        }
+
+        break;
+    }
 }
+
+async function fazerTarefa(tarefa, authToken) {
+    const url = urlDeafult + '/tms/task/' + tarefa.id + `/apply?preview_mode=false&token_code=null&room_name=${tarefa.publication_target}`;
+    console.log('url utilizada >', url);
+    console.log('Exemplo de url >',)
+    console.log(`Somente a tarefa ${tarefa.title}`);
+    console.log(tarefa);
+
+    // const auth = await fetch("https://sedintegracoes.educacao.sp.gov.br/credenciais/api/ValidarToken", {
+    //     "headers": {
+    //         "accept": "application/json, text/plain, */*",
+    //         "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+    //         "authorization": authToken,
+    //         "ocp-apim-subscription-key": "2b03c1db3884488795f79c37c069381a",
+    //         // "request-id": "|84324510fbb34037831b47076a664cd2.0bc82d67690e4439",
+    //         "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
+    //         "sec-ch-ua-mobile": "?0",
+    //         "sec-ch-ua-platform": "\"Windows\"",
+    //         "sec-fetch-dest": "empty",
+    //         "sec-fetch-mode": "cors",
+    //         "sec-fetch-site": "same-site",
+    //         // "traceparent": "00-84324510fbb34037831b47076a664cd2-0bc82d67690e4439-01",
+    //         "Referer": "https://saladofuturo.educacao.sp.gov.br/"
+    //     },
+    //     "method": "POST"
+    // });
+
+    // const authReq = await auth.json();
+
+    // console.log('Resultado da autorização de Token >', authReq);
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            "accept": "application/json",
+            "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+            "content-type": "application/json",
+            "priority": "u=1, i",
+            // "request-id": "|0b2d262d2c3c45b5b953ef313d2437bb.e92c3dbd51cb41a9",
+            "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            // "traceparent": "00-0b2d262d2c3c45b5b953ef313d2437bb-e92c3dbd51cb41a9-01",
+            "x-api-key": authToken,
+            "x-api-platform": "webclient",
+            "x-api-realm": "edusp",
+            "Referer": "https://saladofuturo.educacao.sp.gov.br/"
+        }
+    });
+
+    // Parei aqui, ele dá erro porque dentro do JSON tem um HTML (mal formatado)
+    // Esse mesmo HTML é o conteúdo da tarefa
+    // Apenas precisamos encontrar uma forma de interpretar corretamente o HTML e passar para a IA responder
+    // E depois responder todas as questões da tarefa corretamente.
+
+    // const data = await response.json();
+    console.log('Conteúdo da tarefa >', response);
+
+    return true;
+}
+
 async function start() {
-    const user = "00"; // 
-    const pass = "Bi@";  // 
+    const user = "";
+    const pass = "";  
 
     const req1 = await LoginCompletoToken(user, pass);
     const dadosUsuario = req1.DadosUsuario;
