@@ -41,30 +41,37 @@ async function ListarTurmasPorAluno(codigoAluno) {
         "https://sedintegracoes.educacao.sp.gov.br/apihubintegracoes/api/v2/Turma/ListarTurmasPorAluno" +
         `?codigoAluno=${codigoAluno}`;
 
-    const resp = await fetch(url, {
-        method: "GET",
-        headers: {
-            accept: "application/json, text/plain, */*",
-            "accept-language": "en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7",
-            "ocp-apim-subscription-key": "5936fddda3484fe1aa4436df1bd76dab",
-            // "request-id": "|2185e3c832e34d56bbfc03797c0fdf4e.1533ca7c1d7f4943",
-            "sec-ch-ua":
-                '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-site",
-            // "traceparent": "00-2185e3c832e34d56bbfc03797c0fdf4e-1533ca7c1d7f4943-01",
-            Referer: "https://saladofuturo.educacao.sp.gov.br/",
-            "Request-Context": "appId=cid-v1:861a4529-2cf3-4d08-a982-60d8c305b12e",
-            "Set-Cookie":
-                "ApplicationGatewayAffinityCORS=b6acccc21a1d7b0653c15fbda6021ce8; Path=/; SameSite=None; Secure",
-        },
-    });
-    const data = await resp.json();
-    // console.log(data);
-    return data;
+    try {
+        const resp = await fetch(url, {
+            method: "GET",
+            headers: {
+                accept: "application/json, text/plain, */*",
+                "accept-language": "en-US,en;q=0.9,pt-BR;q=0.8,pt;q=0.7",
+                "ocp-apim-subscription-key": "5936fddda3484fe1aa4436df1bd76dab",
+                // "request-id": "|2185e3c832e34d56bbfc03797c0fdf4e.1533ca7c1d7f4943",
+                "sec-ch-ua":
+                    '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": '"Windows"',
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-site",
+                // "traceparent": "00-2185e3c832e34d56bbfc03797c0fdf4e-1533ca7c1d7f4943-01",
+                Referer: "https://saladofuturo.educacao.sp.gov.br/",
+                "Request-Context": "appId=cid-v1:861a4529-2cf3-4d08-a982-60d8c305b12e",
+                "Set-Cookie":
+                    "ApplicationGatewayAffinityCORS=b6acccc21a1d7b0653c15fbda6021ce8; Path=/; SameSite=None; Secure",
+            },
+        });
+
+        const data = await resp.json();
+        // console.log(data);
+        return data;
+
+    } catch (err) {
+        console.log('Deu erro >', err);
+        process.exit(1);
+    }
 }
 
 async function ListarBimestres(escolaId) {
@@ -377,6 +384,26 @@ async function getTarefasAFazer(dataUser, nomeUser, authToken) {
     }
 }
 
+async function ValidarToken(authToken) {
+    const resp = await fetch("https://sedintegracoes.educacao.sp.gov.br/credenciais/api/ValidarToken", {
+        "headers": {
+            "accept": "application/json, text/plain, */*",
+            "authorization": authToken,
+            "ocp-apim-subscription-key": "2b03c1db3884488795f79c37c069381a",
+            // "request-id": "|69d5f585670d4b7993c16c4d9b2d5391.8e9362d864e84bb0",
+            "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            // "traceparent": "00-69d5f585670d4b7993c16c4d9b2d5391-8e9362d864e84bb0-01",
+            "Referer": "https://saladofuturo.educacao.sp.gov.br/"
+        },
+        "method": "POST"
+    });
+
+    const data = await resp.json();
+    console.log('Log ValidarToken >', data);
+}
+
 async function fazerTarefa(tarefa, authToken) {
     const url = urlDeafult + '/tms/task/' + tarefa.id + `/apply?preview_mode=false&token_code=null&room_name=${tarefa.publication_target}`;
     console.log('url utilizada >', url);
@@ -406,6 +433,7 @@ async function fazerTarefa(tarefa, authToken) {
     // const authReq = await auth.json();
 
     // console.log('Resultado da autorização de Token >', authReq);
+    await ValidarToken(authToken);
 
     const response = await fetch(url, {
         method: 'GET',
@@ -434,15 +462,27 @@ async function fazerTarefa(tarefa, authToken) {
     // Apenas precisamos encontrar uma forma de interpretar corretamente o HTML e passar para a IA responder
     // E depois responder todas as questões da tarefa corretamente.
 
-    // const data = await response.json();
-    console.log('Conteúdo da tarefa >', response);
+    const data = await response.json();
+    console.log('Conteúdo da tarefa >', data);
+
+    data.questions.forEach(block => {
+        console.log('id >', block.id);
+        console.log('tipo >', block.type);
+        console.log('Nº da questão >', block.order);
+        console.log('Valor >', block.score);
+        console.log('Conteúdo (in html) >', block.statement);
+        console.log('Options >', block.options);
+
+        
+
+    });
 
     return true;
 }
 
 async function start() {
-    const user = "";
-    const pass = "";  
+    const user = "1206031578sp";
+    const pass = "Bisco22ln@";
 
     const req1 = await LoginCompletoToken(user, pass);
     const dadosUsuario = req1.DadosUsuario;
@@ -467,6 +507,7 @@ async function start() {
 
     const tokenGeral = await token(req1.token);
 
+    await ValidarToken(req1.token);
     console.log('Token Geral >', tokenGeral);
     console.log('Token de autenticação >', tokenGeral.auth_token);
 
