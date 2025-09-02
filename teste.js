@@ -463,17 +463,73 @@ async function fazerTarefa(tarefa, authToken) {
     // E depois responder todas as questões da tarefa corretamente.
 
     const data = await response.json();
-    console.log('Conteúdo da tarefa >', data);
+    // console.log('Conteúdo da tarefa >', data);
 
     data.questions.forEach(block => {
-        console.log('id >', block.id);
-        console.log('tipo >', block.type);
-        console.log('Nº da questão >', block.order);
-        console.log('Valor >', block.score);
-        console.log('Conteúdo (in html) >', block.statement);
-        console.log('Options >', block.options);
+        // console.log('id >', block.id);
+        // console.log('tipo >', block.type);
+        // console.log('Nº da questão >', block.order);
+        // console.log('Valor >', block.score);
+        // console.log('Conteúdo (in html) >', block.statement);
+        // console.log('Options >', block.options);
 
-        
+        if (block.type === "single") {
+            const enunciado = block.statement
+                .replace("<p>", "")
+                .replace("</p>", "")
+                .replace("<br>", "")
+                .replace("<sub>", "")
+                .replace("</sub>", "");
+
+            console.log('Questões SINGLE (Resposta única) ->', block);
+            console.log('ID:', block.id);
+            console.log('Type:', block.type);
+            console.log('Questão:', block.order);
+
+            console.log('Enunciado:', enunciado);
+
+            let opcoes = "";
+            let keys = Object.keys(block.options);
+
+            console.log('Lenght Opções', keys.length);
+
+            for (const key of keys) {        
+
+                let resposta = block.options[key].statement
+                    .replace("<p>", "")
+                    .replace("</p>", "");
+
+                console.log('==================');    
+                console.log('Index:', key)
+                console.log('ID Resposta ->', block.options[key].id);
+                console.log('Resposta ->', resposta);
+            }
+            // console.log('Opções:', block);
+        }
+        // EM BREVE (FAREI ELE RESPONDER A FILL WORDS!)
+        // if (block.type === "fill-words") {
+
+        //     let fraseCompleta = "";
+
+
+        //     console.log(block);
+
+        //     block.options.phrase.forEach(el => {
+        //         if(el.type === "text") {
+        //             fraseCompleta += el.value;
+        //         } else {
+        //             fraseCompleta += "<SUBSTITUA>";
+        //         }
+        //     });
+
+
+        //     console.log('Frase >', fraseCompleta);
+        //     console.log('Opções >');
+
+        //     block.options.items.forEach(opcao => {
+        //         console.log('->', opcao);
+        //     });
+        // }         
 
     });
 
