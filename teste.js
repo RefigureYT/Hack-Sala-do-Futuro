@@ -1,4 +1,8 @@
+require('dotenv').config(); // Carrega variáveis .env
+const axios = require('axios');
 const urlDeafult = 'https://edusp-api.ip.tv';
+
+const apiKeyGroq = process.env.GROQ_API_KEY; // Chave da API do Groq
 
 async function LoginCompletoToken(user, pass) {
     const url =
@@ -238,12 +242,12 @@ async function getCategories(dataUser, nomeUser, authToken) {
     const midPath = montarPathCategories(dataUser, nomeUser);
 
     path += midPath + 'category_parent_id=19&is_essay=false&is_exam=false';
-    console.log('Path montado >', path);
+    // console.log('Path montado >', path);
 
     const endpoint = '/tms/task/targets/categories';
     const url = urlDeafult + endpoint + path;
 
-    console.log('Url completa montada >', url);
+    // console.log('Url completa montada >', url);
 
     const response = await fetch(url, {
         method: 'GET',
@@ -285,8 +289,8 @@ function montarPathCategories(dataUser, nomeUser) {
         }
     }
 
-    console.log('Nome dos Cards >', cardName);
-    console.log('Ids Categorias >', idCategories);
+    // console.log('Nome dos Cards >', cardName);
+    // console.log('Ids Categorias >', idCategories);
 
     let path = '';
 
@@ -303,7 +307,7 @@ function montarPathCategories(dataUser, nomeUser) {
         path += `publication_target=${id}&`;
     }
 
-    console.log('Função forma PATH >', path);
+    // console.log('Função forma PATH >', path);
     return path;
 }
 
@@ -340,7 +344,7 @@ async function getTarefasAFazer(dataUser, nomeUser, authToken) {
     queryParameters += 'answer_statuses=draft&answer_statuses=pending&with_apply_moment=true';
 
     const url = urlDeafult + '/tms/task/todo' + '?expired_only=false&limit=100&offset=0&filter_expired=true&is_exam=false&with_answer=true&is_essay=false&' + queryParameters;
-    console.log('Url montada >', url);
+    // console.log('Url montada >', url);
 
     const response = await fetch(url, {
         method: 'GET',
@@ -365,11 +369,11 @@ async function getTarefasAFazer(dataUser, nomeUser, authToken) {
     });
 
     const data = await response.json();
-    console.log('Tarefas (JSON) >', data);
-    console.log(`Usuário possui ${data.length} tarefas pendentes.`);
+    // console.log('Tarefas (JSON) >', data);
+    // console.log(`Usuário possui ${data.length} tarefas pendentes.`);
 
     data.forEach(tarefa => {
-        console.log('Título da tarefa:', tarefa.title);
+        // console.log('Título da tarefa:', tarefa.title);
     });
 
     for (const tarefa of data) {
@@ -401,15 +405,17 @@ async function ValidarToken(authToken) {
     });
 
     const data = await resp.json();
-    console.log('Log ValidarToken >', data);
+    // console.log('Log ValidarToken >', data);
 }
 
 async function fazerTarefa(tarefa, authToken) {
     const url = urlDeafult + '/tms/task/' + tarefa.id + `/apply?preview_mode=false&token_code=null&room_name=${tarefa.publication_target}`;
-    console.log('url utilizada >', url);
-    console.log('Exemplo de url >',)
-    console.log(`Somente a tarefa ${tarefa.title}`);
-    console.log(tarefa);
+    const respostasTarefa = []; // Aqui vai ficar uma lista com o índice da questão e a(s) resposta(s) correta(s)
+
+    // console.log('url utilizada >', url);
+    // console.log('Exemplo de url >',)
+    // console.log(`Somente a tarefa ${tarefa.title}`);
+    // console.log(tarefa);
 
     // const auth = await fetch("https://sedintegracoes.educacao.sp.gov.br/credenciais/api/ValidarToken", {
     //     "headers": {
@@ -465,7 +471,7 @@ async function fazerTarefa(tarefa, authToken) {
     const data = await response.json();
     // console.log('Conteúdo da tarefa >', data);
 
-    data.questions.forEach(block => {
+    for (const block of data.questions) {
         // console.log('id >', block.id);
         // console.log('tipo >', block.type);
         // console.log('Nº da questão >', block.order);
@@ -473,49 +479,77 @@ async function fazerTarefa(tarefa, authToken) {
         // console.log('Conteúdo (in html) >', block.statement);
         // console.log('Options >', block.options);
 
-        if (block.type === "single") {
-            const enunciado = block.statement
-                .replace("<p>", "")
-                .replace("</p>", "")
-                .replace("<br>", "")
-                .replace("<sub>", "")
-                .replace("</sub>", "");
+        // Está comentado apenas para não fazer requisição desnecessária para o Groq
+        // << DEBUG >> LEMBRE DE DESCOMENTAR DEPOIS
 
-            console.log('Questões SINGLE (Resposta única) ->', block);
-            console.log('ID:', block.id);
-            console.log('Type:', block.type);
-            console.log('Questão:', block.order);
+        // if (block.type === "single") {
+        //     const enunciado = block.statement;
 
-            console.log('Enunciado:', enunciado);
+        //     // console.log('Questões SINGLE (Resposta única) ->', block);
+        //     // console.log('ID:', block.id);
+        //     // console.log('Type:', block.type);
+        //     // console.log('Questão:', block.order);
 
-            let opcoes = "";
-            let keys = Object.keys(block.options);
+        //     // console.log('Enunciado:', enunciado);
 
-            console.log('Lenght Opções', keys.length);
+        //     let opcoes = "";
+        //     let keys = Object.keys(block.options);
 
-            for (const key of keys) {        
+        //     // console.log('Lenght Opções', keys.length);
 
-                let resposta = block.options[key].statement
-                    .replace("<p>", "")
-                    .replace("</p>", "");
+        //     // for (const key of keys) {
 
-                console.log('==================');    
-                console.log('Index:', key)
-                console.log('ID Resposta ->', block.options[key].id);
-                console.log('Resposta ->', resposta);
-            }
-            // console.log('Opções:', block);
-        }
-        // EM BREVE (FAREI ELE RESPONDER A FILL WORDS!)
-        // if (block.type === "fill-words") {
+        //     //     let resposta = block.options[key].statement;
+
+        //     //     console.log('==================');
+        //     //     console.log('Index:', key)
+        //     //     console.log('ID Resposta ->', block.options[key].id);
+        //     //     console.log('Resposta ->', resposta);
+        //     // }
+        //     // console.log('Opções:', block);
+
+        //     // Aqui ele fará a requisição com o AXIOS para o Groq e então pegará a resposta correta
+
+        //     // Montar o prompt com o enunciado e as opções
+        //     const promptUser = `Enunciado: ${enunciado}\nOpções:\n${keys.map(key => `- ${block.options[key].statement}`).join('\n')}`;
+
+        //     // Aqui é o prompt do sistema (Vai dar um contexto para IA saber como responder)
+        //     const promptSystem = "Você receberá questões com enunciado e alternativas formatadas em HTML (ou em estrutura semelhante). Sua tarefa é ler, interpretar e identificar a alternativa correta com base no conteúdo apresentado. Regras para a resposta: Responda com apenas uma letra, correspondente à alternativa correta. Não adicione parênteses, espaços, pontuações ou qualquer outro caractere. A resposta deve seguir exatamente este formato: Exemplos de respostas corretas: A B C D E Exemplos de respostas incorretas: A) A ) A. AA A (com espaço depois)";
+
+        //     const url = 'https://api.groq.com/openai/v1/chat/completions';
+        //     const data = {
+        //         model: "llama-3.3-70b-versatile",
+        //         messages: [
+        //             { role: "system", content: promptSystem },
+        //             { role: "user", content: promptUser }
+        //         ]
+        //     };
+
+        //     const config = {
+        //         headers: {
+        //             'Authorization': `Bearer ${apiKeyGroq}`,
+        //             'Content-Type': 'application/json'
+        //         }
+        //     };
+
+        //     const responseGroq = await axios.post(url, data, config);
+        //     // console.log('Resposta do Groq >', responseGroq.data);
+
+        //     const respostaIA = responseGroq.data.choices[0].message.content.trim();
+        //     console.log('Resposta da IA >', respostaIA);
+
+        //     respostasTarefa.push({ index: block.order, resposta: respostaIA });
+
+        //     console.log('Respostas da tarefa até agora >', respostasTarefa);
+        // } else if (block.type === "fill-words") {
 
         //     let fraseCompleta = "";
-
+        //     let opcoes = [];
 
         //     console.log(block);
 
         //     block.options.phrase.forEach(el => {
-        //         if(el.type === "text") {
+        //         if (el.type === "text") {
         //             fraseCompleta += el.value;
         //         } else {
         //             fraseCompleta += "<SUBSTITUA>";
@@ -528,56 +562,132 @@ async function fazerTarefa(tarefa, authToken) {
 
         //     block.options.items.forEach(opcao => {
         //         console.log('->', opcao);
+        //         opcoes.push(opcao);
         //     });
-        // }         
 
-    });
+        //     // console.log('Array completa das opções >', opcoes);
+        //     opcoes = opcoes.map(op => `- ${op}`).join('\n');
+        //     const promptUser = `Enunciado: ${fraseCompleta}\nOpções:\n${opcoes}`;
 
+        //     // Agora está com o prompt correto
+        //     const promptSystem = "Você receberá um texto contendo marcações como <SUBSTITUA> e uma lista de opções de palavras. Sua tarefa é substituir cada ocorrência de <SUBSTITUA> pela palavra mais adequada da lista fornecida, com base no contexto do texto. Importante: responda apenas com as palavras escolhidas, separadas por vírgula, na ordem exata em que substituiriam os <SUBSTITUA> no texto. Não adicione espaços, pontuações extras, explicações ou palavras que não estejam na lista. Atenção: a lista de opções pode conter palavras que não devem ser utilizadas. Exemplo de formato correto de resposta: palavra1,palavra2,palavra3. Formatos incorretos: palavra1, palavra2, palavra3 (com espaços), palavra1-palavra2-palavra3 (com hífens), palavra1,palavra2,palavra3, (vírgula no final)."
+
+        //     const url = 'https://api.groq.com/openai/v1/chat/completions';
+        //     const data = {
+        //         model: "llama-3.3-70b-versatile",
+        //         messages: [
+        //             { role: "system", content: promptSystem },
+        //             { role: "user", content: promptUser }
+        //         ]
+        //     };
+        //     const config = {
+        //         headers: {
+        //             'Authorization': `Bearer ${apiKeyGroq}`,
+        //             'Content-Type': 'application/json'
+        //         }
+        //     };
+        //     const responseGroq = await axios.post(url, data, config);
+        //     // console.log('Resposta do Groq >', responseGroq.data);    
+
+        //     const respostaIA = responseGroq.data.choices[0].message.content.trim();
+        //     console.log('Resposta da IA >', respostaIA);
+        //     respostasTarefa.push({ index: block.order, resposta: respostaIA });
+        //     console.log('Respostas da tarefa até agora >', respostasTarefa);
+
+        // } else if (block.type === "multi") {
+        //     const enunciado = block.statement;
+        //     const listaOpcoes = Object.values(block.options).map(opcao => opcao.statement);
+
+        //     // console.log('Tipo de questão múltipla encontrada.\nBlock:', block);
+        //     // console.log('Nº Questão:', nQuestao);
+        //     // console.log('Enunciado:', enunciado);
+        //     // console.log('Opções:', listaOpcoes);
+
+        //     const promptUser = `Enunciado: ${enunciado}\nOpções: ${listaOpcoes}`;
+        //     const promptSystem = "Você receberá questões com enunciado e alternativas formatadas em HTML (ou em estrutura semelhante), podendo haver mais de uma alternativa correta. Sua tarefa é ler, interpretar e identificar todas as alternativas corretas com base no conteúdo apresentado. Regras para a resposta: Responda com apenas as letras das alternativas corretas, separadas por vírgula e sem nenhum espaço ou caractere adicional. A resposta deve seguir exatamente este formato: Exemplo de resposta correta: \"A,D,E\" ou \"B,C\" (Não utilize aspas). Exemplos de respostas incorretas: A, B, C (com espaços), A B C (sem vírgulas), A-B-C (com hífens), A,B,C, (com vírgula no final), A,,B (com vírgulas duplicadas)."
+
+        //     // Envia para o Groq em busca da resposta
+        //     const url = 'https://api.groq.com/openai/v1/chat/completions';
+        //     const data = {
+        //         model: "llama-3.3-70b-versatile",
+        //         messages: [
+        //             { role: "system", content: promptSystem },
+        //             { role: "user", content: promptUser }
+        //         ]
+        //     };
+
+        //     const config = {
+        //         headers: {
+        //             'Authorization': `Bearer ${apiKeyGroq}`,
+        //             'Content-Type': 'application/json'
+        //         }
+        //     };
+
+        //     const responseGroq = await axios.post(url, data, config);
+
+        //     // console.log('Resposta do Groq >', responseGroq.data);    
+
+        //     const respostaIA = responseGroq.data.choices[0].message.content.trim();
+        //     // console.log('Resposta da IA >', respostaIA);
+        //     respostasTarefa.push({ index: block.order, resposta: respostaIA });
+        // }
+        if (block.type === 'text_ai') {
+
+        } else {
+            console.log('Tipo de questão ainda não identificada.\nType:', block.type) // Aqui é para DEBUG para eu saber quais precisa fazer a mais
+        }
+    }
+
+    // Exibe todas as respostas capturadas
+    console.log('Respostas capturadas para a tarefa:', respostasTarefa);
+
+    // Aqui será a requisição para enviar as respostas
+    // Por enquanto só está retornando true para indicar que terminou
     return true;
 }
 
 async function start() {
-    const user = "1206031578sp";
-    const pass = "Bisco22ln@";
+    const user = "";
+    const pass = "";
 
     const req1 = await LoginCompletoToken(user, pass);
     const dadosUsuario = req1.DadosUsuario;
     const codigoAluno = dadosUsuario.CD_USUARIO.toString().slice(0, -1);
 
-    console.log("LoginCompletoToken >", req1);
-    console.log("Código Aluno >", dadosUsuario.CD_USUARIO);
+    // console.log("LoginCompletoToken >", req1);
+    // console.log("Código Aluno >", dadosUsuario.CD_USUARIO);
 
     const req2 = await ListarTurmasPorAluno(codigoAluno);
     const codigoEscola = req2.data[0].CodigoEscola;
 
-    console.log("ListarTurmasPorAluno >", req2);
-    console.log("Código Escola >", codigoEscola);
+    // console.log("ListarTurmasPorAluno >", req2);
+    // console.log("Código Escola >", codigoEscola);
 
     const bimestres = await ListarBimestres(codigoEscola);
 
-    console.log("Bimestres >", bimestres);
+    // console.log("Bimestres >", bimestres);
 
     const bimestreAtual = definirBimestreAtual(bimestres);
 
-    console.log("Bimestre Atual >", bimestreAtual);
+    // console.log("Bimestre Atual >", bimestreAtual);
 
     const tokenGeral = await token(req1.token);
 
     await ValidarToken(req1.token);
-    console.log('Token Geral >', tokenGeral);
-    console.log('Token de autenticação >', tokenGeral.auth_token);
+    // console.log('Token Geral >', tokenGeral);
+    // console.log('Token de autenticação >', tokenGeral.auth_token);
 
     const listarTurmasPorAluno = await ListarDisciplinaPorAluno(codigoAluno);
 
-    console.log('Listar Turmas Por Aluno >', listarTurmasPorAluno);
+    // console.log('Listar Turmas Por Aluno >', listarTurmasPorAluno);
 
     const dataUser = await getUser(tokenGeral.auth_token);
 
-    console.log('Dados do usuário >', dataUser);
+    // console.log('Dados do usuário >', dataUser);
 
     const categories = await getCategories(dataUser, tokenGeral.nick, tokenGeral.auth_token);
 
-    console.log('Listar categorias >', categories);
+    // console.log('Listar categorias >', categories);
 
     getTarefasAFazer(dataUser, tokenGeral.nick, tokenGeral.auth_token);
 }
