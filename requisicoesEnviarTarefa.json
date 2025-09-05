@@ -1,0 +1,75 @@
+{
+    "status": "submitted",
+    "answers": {
+        "277686771": {
+            "question_id": 277686771,
+            "question_type": "single",
+            "answer": {
+                "0": false,
+                "1": false,
+                "2": true,
+                "3": false,
+                "4": false
+            }
+        },
+        "277686772": {
+            "question_id": 277686772,
+            "question_type": "true-false",
+            "answer": {
+                "0": true,
+                "1": true,
+                "2": true
+            }
+        },
+        "277686773": {
+            "question_id": 277686773,
+            "question_type": "multi",
+            "answer": {
+                "0": false,
+                "1": false,
+                "2": false,
+                "3": true,
+                "4": false
+            }
+        },
+        "277686774": {
+            "question_id": 277686774,
+            "question_type": "single",
+            "answer": {
+                "0": true,
+                "1": false,
+                "2": false,
+                "3": false,
+                "4": false
+            }
+        }
+    },
+    "accessed_on": "room",
+    "executed_on": "r3fecffb9f4c2f1cea-l",
+    "duration": 1504.18
+}
+
+
+
+fetch("https://edusp-api.ip.tv/tms/task/76035453/answer", {
+  "headers": {
+    "accept": "application/json",
+    "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+    "content-type": "application/json",
+    "priority": "u=1, i",
+    "request-id": "|176055aebac44e9182204c191afe715b.af73f613b4024a4d",
+    "sec-ch-ua": "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "traceparent": "00-176055aebac44e9182204c191afe715b-af73f613b4024a4d-01",
+    "x-api-key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjAxYWEyNWJmZDM0MTMwMDA3Mjc1ZDMwIiwic3VwZXJ2aXNlZXMiOltdLCJleHRlcm5hbF9pZCI6IjI2NTY3NTIwNiIsInNrZXkiOiJhdXRoX3Rva2VuOmVkdXNwOmtlbHZpbmthdWFuMDkwOTYzMDE0LXNwIiwibmljayI6ImtlbHZpbmthdWFuMDkwOTYzMDE0LXNwIiwicmVhbG0iOiJlZHVzcCIsInJvbGUiOiIwMDA2IiwiaWF0IjoxNzU3MDMzMjQ0LCJhdWQiOiJ3ZWJjbGllbnQifQ.bI4Q1kyVKPZyf8Ey5WhOOinSgr4G0SdMFCKNr8u_HEU",
+    "x-api-platform": "webclient",
+    "x-api-realm": "edusp",
+    "Referer": "https://saladofuturo.educacao.sp.gov.br/"
+  },
+  "body": "{\"status\":\"submitted\",\"answers\":{\"277686771\":{\"question_id\":277686771,\"question_type\":\"single\",\"answer\":{\"0\":false,\"1\":false,\"2\":true,\"3\":false,\"4\":false}},\"277686772\":{\"question_id\":277686772,\"question_type\":\"true-false\",\"answer\":{\"0\":true,\"1\":true,\"2\":true}},\"277686773\":{\"question_id\":277686773,\"question_type\":\"multi\",\"answer\":{\"0\":false,\"1\":false,\"2\":false,\"3\":true,\"4\":false}},\"277686774\":{\"question_id\":277686774,\"question_type\":\"single\",\"answer\":{\"0\":true,\"1\":false,\"2\":false,\"3\":false,\"4\":false}}},\"accessed_on\":\"room\",\"executed_on\":\"r3fecffb9f4c2f1cea-l\",\"duration\":1504.18}",
+  "method": "POST"
+});

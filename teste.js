@@ -411,6 +411,16 @@ async function ValidarToken(authToken) {
 async function fazerTarefa(tarefa, authToken) {
     const url = urlDeafult + '/tms/task/' + tarefa.id + `/apply?preview_mode=false&token_code=null&room_name=${tarefa.publication_target}`;
     const respostasTarefa = []; // Aqui vai ficar uma lista com o índice da questão e a(s) resposta(s) correta(s)
+    const payloadEntregarTarefa = {
+        status: "submitted",
+        answers: {},
+        accessed_on: "room",
+        executed_on: "r3fecffb9f4c2f1cea-l",
+        duration: 1504.18
+    }; //Falta terminar de programar o payload e a adição das respostas dentro dele...
+
+    console.log('Só para lembrar o que é tarefa');
+    console.log(tarefa);
 
     // console.log('url utilizada >', url);
     // console.log('Exemplo de url >',)
@@ -482,160 +492,252 @@ async function fazerTarefa(tarefa, authToken) {
         // Está comentado apenas para não fazer requisição desnecessária para o Groq
         // << DEBUG >> LEMBRE DE DESCOMENTAR DEPOIS
 
-        // if (block.type === "single") {
-        //     const enunciado = block.statement;
+        if (block.type === "single") {
+            const enunciado = block.statement;
 
-        //     // console.log('Questões SINGLE (Resposta única) ->', block);
-        //     // console.log('ID:', block.id);
-        //     // console.log('Type:', block.type);
-        //     // console.log('Questão:', block.order);
+            // console.log('Questões SINGLE (Resposta única) ->', block);
+            // console.log('ID:', block.id);
+            // console.log('Type:', block.type);
+            // console.log('Questão:', block.order);
 
-        //     // console.log('Enunciado:', enunciado);
+            // console.log('Enunciado:', enunciado);
 
-        //     let opcoes = "";
-        //     let keys = Object.keys(block.options);
+            let opcoes = "";
+            let keys = Object.keys(block.options);
 
-        //     // console.log('Lenght Opções', keys.length);
+            // console.log('Lenght Opções', keys.length);
 
-        //     // for (const key of keys) {
+            // for (const key of keys) {
 
-        //     //     let resposta = block.options[key].statement;
+            //     let resposta = block.options[key].statement;
 
-        //     //     console.log('==================');
-        //     //     console.log('Index:', key)
-        //     //     console.log('ID Resposta ->', block.options[key].id);
-        //     //     console.log('Resposta ->', resposta);
-        //     // }
-        //     // console.log('Opções:', block);
+            //     console.log('==================');
+            //     console.log('Index:', key)
+            //     console.log('ID Resposta ->', block.options[key].id);
+            //     console.log('Resposta ->', resposta);
+            // }
+            // console.log('Opções:', block);
 
-        //     // Aqui ele fará a requisição com o AXIOS para o Groq e então pegará a resposta correta
+            // Aqui ele fará a requisição com o AXIOS para o Groq e então pegará a resposta correta
 
-        //     // Montar o prompt com o enunciado e as opções
-        //     const promptUser = `Enunciado: ${enunciado}\nOpções:\n${keys.map(key => `- ${block.options[key].statement}`).join('\n')}`;
+            // Montar o prompt com o enunciado e as opções
+            const promptUser = `Enunciado: ${enunciado}\nOpções:\n${keys.map(key => `- ${block.options[key].statement}`).join('\n')}`;
 
-        //     // Aqui é o prompt do sistema (Vai dar um contexto para IA saber como responder)
-        //     const promptSystem = "Você receberá questões com enunciado e alternativas formatadas em HTML (ou em estrutura semelhante). Sua tarefa é ler, interpretar e identificar a alternativa correta com base no conteúdo apresentado. Regras para a resposta: Responda com apenas uma letra, correspondente à alternativa correta. Não adicione parênteses, espaços, pontuações ou qualquer outro caractere. A resposta deve seguir exatamente este formato: Exemplos de respostas corretas: A B C D E Exemplos de respostas incorretas: A) A ) A. AA A (com espaço depois)";
+            // Aqui é o prompt do sistema (Vai dar um contexto para IA saber como responder)
+            const promptSystem = "Você receberá questões com enunciado e alternativas formatadas em HTML (ou em estrutura semelhante). Sua tarefa é ler, interpretar e identificar a alternativa correta com base no conteúdo apresentado. Regras para a resposta: Responda com apenas uma letra, correspondente à alternativa correta. Não adicione parênteses, espaços, pontuações ou qualquer outro caractere. A resposta deve seguir exatamente este formato: Exemplos de respostas corretas: A B C D E Exemplos de respostas incorretas: A) A ) A. AA A (com espaço depois)";
 
-        //     const url = 'https://api.groq.com/openai/v1/chat/completions';
-        //     const data = {
-        //         model: "llama-3.3-70b-versatile",
-        //         messages: [
-        //             { role: "system", content: promptSystem },
-        //             { role: "user", content: promptUser }
-        //         ]
-        //     };
+            const url = 'https://api.groq.com/openai/v1/chat/completions';
+            const data = {
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: promptSystem },
+                    { role: "user", content: promptUser }
+                ]
+            };
 
-        //     const config = {
-        //         headers: {
-        //             'Authorization': `Bearer ${apiKeyGroq}`,
-        //             'Content-Type': 'application/json'
-        //         }
-        //     };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${apiKeyGroq}`,
+                    'Content-Type': 'application/json'
+                }
+            };
 
-        //     const responseGroq = await axios.post(url, data, config);
-        //     // console.log('Resposta do Groq >', responseGroq.data);
+            const responseGroq = await axios.post(url, data, config);
+            // console.log('Resposta do Groq >', responseGroq.data);
 
-        //     const respostaIA = responseGroq.data.choices[0].message.content.trim();
-        //     console.log('Resposta da IA >', respostaIA);
+            const respostaIA = responseGroq.data.choices[0].message.content.trim();
+            console.log('Resposta da IA >', respostaIA);
 
-        //     respostasTarefa.push({ index: block.order, resposta: respostaIA });
+            respostasTarefa.push({ index: block.order, resposta: respostaIA });
 
-        //     console.log('Respostas da tarefa até agora >', respostasTarefa);
-        // } else if (block.type === "fill-words") {
+            console.log('Respostas da tarefa até agora >', respostasTarefa);
+        } else if (block.type === "fill-words") {
 
-        //     let fraseCompleta = "";
-        //     let opcoes = [];
+            let fraseCompleta = "";
+            let opcoes = [];
 
-        //     console.log(block);
+            // console.log(block);
 
-        //     block.options.phrase.forEach(el => {
-        //         if (el.type === "text") {
-        //             fraseCompleta += el.value;
-        //         } else {
-        //             fraseCompleta += "<SUBSTITUA>";
-        //         }
-        //     });
+            block.options.phrase.forEach(el => {
+                if (el.type === "text") {
+                    fraseCompleta += el.value;
+                } else {
+                    fraseCompleta += "<SUBSTITUA>";
+                }
+            });
 
 
-        //     console.log('Frase >', fraseCompleta);
-        //     console.log('Opções >');
+            // console.log('Frase >', fraseCompleta);
+            // console.log('Opções >');
 
-        //     block.options.items.forEach(opcao => {
-        //         console.log('->', opcao);
-        //         opcoes.push(opcao);
-        //     });
+            block.options.items.forEach(opcao => {
+                // console.log('->', opcao);
+                opcoes.push(opcao);
+            });
 
-        //     // console.log('Array completa das opções >', opcoes);
-        //     opcoes = opcoes.map(op => `- ${op}`).join('\n');
-        //     const promptUser = `Enunciado: ${fraseCompleta}\nOpções:\n${opcoes}`;
+            // console.log('Array completa das opções >', opcoes);
+            opcoes = opcoes.map(op => `- ${op}`).join('\n');
+            const promptUser = `Enunciado: ${fraseCompleta}\nOpções:\n${opcoes}`;
 
-        //     // Agora está com o prompt correto
-        //     const promptSystem = "Você receberá um texto contendo marcações como <SUBSTITUA> e uma lista de opções de palavras. Sua tarefa é substituir cada ocorrência de <SUBSTITUA> pela palavra mais adequada da lista fornecida, com base no contexto do texto. Importante: responda apenas com as palavras escolhidas, separadas por vírgula, na ordem exata em que substituiriam os <SUBSTITUA> no texto. Não adicione espaços, pontuações extras, explicações ou palavras que não estejam na lista. Atenção: a lista de opções pode conter palavras que não devem ser utilizadas. Exemplo de formato correto de resposta: palavra1,palavra2,palavra3. Formatos incorretos: palavra1, palavra2, palavra3 (com espaços), palavra1-palavra2-palavra3 (com hífens), palavra1,palavra2,palavra3, (vírgula no final)."
+            // Agora está com o prompt correto
+            const promptSystem = "Você receberá um texto contendo marcações como <SUBSTITUA> e uma lista de opções de palavras. Sua tarefa é substituir cada ocorrência de <SUBSTITUA> pela palavra mais adequada da lista fornecida, com base no contexto do texto. Importante: responda apenas com as palavras escolhidas, separadas por vírgula, na ordem exata em que substituiriam os <SUBSTITUA> no texto. Não adicione espaços, pontuações extras, explicações ou palavras que não estejam na lista. Atenção: a lista de opções pode conter palavras que não devem ser utilizadas. Exemplo de formato correto de resposta: palavra1,palavra2,palavra3. Formatos incorretos: palavra1, palavra2, palavra3 (com espaços), palavra1-palavra2-palavra3 (com hífens), palavra1,palavra2,palavra3, (vírgula no final)."
 
-        //     const url = 'https://api.groq.com/openai/v1/chat/completions';
-        //     const data = {
-        //         model: "llama-3.3-70b-versatile",
-        //         messages: [
-        //             { role: "system", content: promptSystem },
-        //             { role: "user", content: promptUser }
-        //         ]
-        //     };
-        //     const config = {
-        //         headers: {
-        //             'Authorization': `Bearer ${apiKeyGroq}`,
-        //             'Content-Type': 'application/json'
-        //         }
-        //     };
-        //     const responseGroq = await axios.post(url, data, config);
-        //     // console.log('Resposta do Groq >', responseGroq.data);    
+            const url = 'https://api.groq.com/openai/v1/chat/completions';
+            const data = {
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: promptSystem },
+                    { role: "user", content: promptUser }
+                ]
+            };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${apiKeyGroq}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            const responseGroq = await axios.post(url, data, config);
+            // console.log('Resposta do Groq >', responseGroq.data);    
 
-        //     const respostaIA = responseGroq.data.choices[0].message.content.trim();
-        //     console.log('Resposta da IA >', respostaIA);
-        //     respostasTarefa.push({ index: block.order, resposta: respostaIA });
-        //     console.log('Respostas da tarefa até agora >', respostasTarefa);
+            const respostaIA = responseGroq.data.choices[0].message.content.trim();
+            console.log('Resposta da IA >', respostaIA);
+            respostasTarefa.push({ index: block.order, resposta: respostaIA });
+            console.log('Respostas da tarefa até agora >', respostasTarefa);
 
-        // } else if (block.type === "multi") {
-        //     const enunciado = block.statement;
-        //     const listaOpcoes = Object.values(block.options).map(opcao => opcao.statement);
+        } else if (block.type === "multi") {
+            const enunciado = block.statement;
+            const listaOpcoes = Object.values(block.options).map(opcao => opcao.statement);
 
-        //     // console.log('Tipo de questão múltipla encontrada.\nBlock:', block);
-        //     // console.log('Nº Questão:', nQuestao);
-        //     // console.log('Enunciado:', enunciado);
-        //     // console.log('Opções:', listaOpcoes);
+            // console.log('Tipo de questão múltipla encontrada.\nBlock:', block);
+            // console.log('Nº Questão:', nQuestao);
+            // console.log('Enunciado:', enunciado);
+            // console.log('Opções:', listaOpcoes);
 
-        //     const promptUser = `Enunciado: ${enunciado}\nOpções: ${listaOpcoes}`;
-        //     const promptSystem = "Você receberá questões com enunciado e alternativas formatadas em HTML (ou em estrutura semelhante), podendo haver mais de uma alternativa correta. Sua tarefa é ler, interpretar e identificar todas as alternativas corretas com base no conteúdo apresentado. Regras para a resposta: Responda com apenas as letras das alternativas corretas, separadas por vírgula e sem nenhum espaço ou caractere adicional. A resposta deve seguir exatamente este formato: Exemplo de resposta correta: \"A,D,E\" ou \"B,C\" (Não utilize aspas). Exemplos de respostas incorretas: A, B, C (com espaços), A B C (sem vírgulas), A-B-C (com hífens), A,B,C, (com vírgula no final), A,,B (com vírgulas duplicadas)."
+            const promptUser = `Enunciado: ${enunciado}\nOpções: ${listaOpcoes}`;
+            const promptSystem = "Você receberá questões com enunciado e alternativas formatadas em HTML (ou em estrutura semelhante), podendo haver mais de uma alternativa correta. Sua tarefa é ler, interpretar e identificar todas as alternativas corretas com base no conteúdo apresentado. Regras para a resposta: Responda com apenas as letras das alternativas corretas, separadas por vírgula e sem nenhum espaço ou caractere adicional. A resposta deve seguir exatamente este formato: Exemplo de resposta correta: \"A,D,E\" ou \"B,C\" (Não utilize aspas). Exemplos de respostas incorretas: A, B, C (com espaços), A B C (sem vírgulas), A-B-C (com hífens), A,B,C, (com vírgula no final), A,,B (com vírgulas duplicadas)."
 
-        //     // Envia para o Groq em busca da resposta
-        //     const url = 'https://api.groq.com/openai/v1/chat/completions';
-        //     const data = {
-        //         model: "llama-3.3-70b-versatile",
-        //         messages: [
-        //             { role: "system", content: promptSystem },
-        //             { role: "user", content: promptUser }
-        //         ]
-        //     };
+            // Envia para o Groq em busca da resposta
+            const url = 'https://api.groq.com/openai/v1/chat/completions';
+            const data = {
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: promptSystem },
+                    { role: "user", content: promptUser }
+                ]
+            };
 
-        //     const config = {
-        //         headers: {
-        //             'Authorization': `Bearer ${apiKeyGroq}`,
-        //             'Content-Type': 'application/json'
-        //         }
-        //     };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${apiKeyGroq}`,
+                    'Content-Type': 'application/json'
+                }
+            };
 
-        //     const responseGroq = await axios.post(url, data, config);
+            const responseGroq = await axios.post(url, data, config);
 
-        //     // console.log('Resposta do Groq >', responseGroq.data);    
+            // console.log('Resposta do Groq >', responseGroq.data);    
 
-        //     const respostaIA = responseGroq.data.choices[0].message.content.trim();
-        //     // console.log('Resposta da IA >', respostaIA);
-        //     respostasTarefa.push({ index: block.order, resposta: respostaIA });
-        // }
-        if (block.type === 'text_ai') {
+            const respostaIA = responseGroq.data.choices[0].message.content.trim();
+            // console.log('Resposta da IA >', respostaIA);
+            respostasTarefa.push({ index: block.order, resposta: respostaIA });
+        } else if (block.type === 'text_ai') {
 
-        } else {
+
+            // AINDA NÃO PROGRAMADO POIS NÃO TIVE MAIS EXEMPLOS PARA USAR COMO BASE
+            // <<<<<<<< DEBUG >>>>> LEMBRE DE PROGRAMAR DEPOIS
+            // console.log('Questão dissertativa detectada. Gerando resposta com IA...');
+            // console.log(block);
+            // Captura o enunciado da questão
+            const enunciado = block.statement;
+
+            const promptSystem = "Você receberá um enunciado de questão dissertativa. Sua tarefa é gerar uma resposta completa, coerente, EXTREMAMENTE RESUMIDA (Evite respostas com mais de 200 caracteres) e relevante com base no conteúdo apresentado. Regras para a resposta: A resposta deve ser clara, objetiva, resumida, com erros de ortografia para parecer um ser humano de 15 anos e mal estruturada, abordando todos os pontos importantes relacionados ao enunciado. Certifique-se de que a resposta esteja diretamente relacionada ao enunciado fornecido.";
+            const promptUser = `Enunciado: ${enunciado}`;
+
+            // Envia para a API do Groq
+            const url = 'https://api.groq.com/openai/v1/chat/completions';
+            const data = {
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: promptSystem },
+                    { role: "user", content: promptUser }
+                ]
+            };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${apiKeyGroq}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const response = await axios.post(url, data, config);
+            const respostaIA = response.data.choices[0].message.content.trim();
+            console.log('Resposta da IA >', respostaIA);
+            respostasTarefa.push({ index: block.order, resposta: respostaIA });
+            console.log('Respostas da tarefa até agora >', respostasTarefa);
+
+            process.exit(0);
+        } else if (block.type === 'true-false') {
+            // console.log(block);
+
+            const enunciado = block.statement; // Enunciado da questão
+            const listaOpcoes = Object.values(block.options).map(opcao => opcao.statement); // Opções (Verdadeiro ou Falso)
+
+            // console.log('Tipo de questão verdadeiro ou falso encontrada.\nBlock:', block);
+            // console.log('Enunciado:', enunciado);
+            // console.log('Opções:', listaOpcoes);
+
+            // Pergunta para a IA quais são verdadeiro e quais são falso.
+
+            const promptSystem = "Você receberá um enunciado seguido de várias assertivas (alternativas) identificadas por letras, e deve classificá-las como verdadeiras (V) ou falsas (F), com base no contexto apresentado. Responda apenas com a letra da assertiva seguida de V ou F, separadas por vírgulas, mantendo a ordem em que aparecem. Não escreva explicações, espaços, nem nenhum outro caractere além das letras das alternativas, vírgulas e as letras V ou F. Exemplo de formato correto: A,V,B,V,C,F,D,F. Formatos incorretos: A - V, B - F (com hífens), A:V,B:F (com dois-pontos), A,V,B,V,C,F,D,F, (vírgula no final), A V B F (com espaços)."
+            const promptUser = `Enunciado: ${enunciado}\nLista de opções: ${listaOpcoes.join(", ")}`;
+
+            // Envia para o Groq em busca da resposta
+            const url = 'https://api.groq.com/openai/v1/chat/completions';
+            const data = {
+                model: "llama-3.3-70b-versatile",
+                messages: [
+                    { role: "system", content: promptSystem },
+                    { role: "user", content: promptUser }
+                ]
+            };
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${apiKeyGroq}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            // A resposta esperada será algo como "A,V,B,F,C,F" (sem aspas)
+            // Então vamos formatar isso para o formato que a API do Salão do Futuro espera
+            // Que é um array de true ou false (boolean)
+            // Exemplo: [true, false, false, true]
+
+            const response = await axios.post(url, data, config);
+            const respostaIA = response.data.choices[0].message.content.trim();
+
+            respostaIA.split(',').map(item => item.trim()); // Remove espaços em branco
+
+            const respostasFormatadas = [];
+            const partes = respostaIA.split(',');
+            for (let i = 0; i < partes.length; i += 2) {
+                // const letra = partes[i]; // Letra da alternativa
+                const valor = partes[i + 1]; // V ou F
+                if (valor === 'V') {
+                    respostasFormatadas.push(true);
+                } else if (valor === 'F') {
+                    respostasFormatadas.push(false);
+                }
+            }
+
+            console.log('Respostas formatadas para a API >', respostasFormatadas);
+
+            respostasTarefa.push({ index: block.order, resposta: respostasFormatadas });
+            console.log('Resposta da IA >', respostaIA);
+        } else if (block.type !== 'info') {
             console.log('Tipo de questão ainda não identificada.\nType:', block.type) // Aqui é para DEBUG para eu saber quais precisa fazer a mais
         }
+
+
     }
 
     // Exibe todas as respostas capturadas
@@ -643,12 +745,19 @@ async function fazerTarefa(tarefa, authToken) {
 
     // Aqui será a requisição para enviar as respostas
     // Por enquanto só está retornando true para indicar que terminou
+
+    // Agora ele faz a requisição enviando a tarefa
+
+    const urlAnswer = `https://edusp-api.ip.tv/tms/task/${tarefa.id}/answer`;
+    const dataAnswer = payloadEntregarTarefa;
+    const configAnswer = {};
+
     return true;
 }
 
 async function start() {
-    const user = "";
-    const pass = "";
+    const user = "1090963014sp";
+    const pass = "Kk153264897!";
 
     const req1 = await LoginCompletoToken(user, pass);
     const dadosUsuario = req1.DadosUsuario;
